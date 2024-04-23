@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
@@ -47,7 +46,7 @@ public final class ColorfulSubtitles {
 		File file = new File(configDir.toFile(), MOD_ID + ".json");
 
 		try (Reader reader = new BufferedReader(new FileReader(file))) {
-			JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+			JsonElement json = JsonParser.parseReader(reader);
 			DataResult<Pair<ColorfulSubtitlesConfig, JsonElement>> result = ColorfulSubtitlesConfig.CODEC.decode(JsonOps.INSTANCE, json);
 
 			return result.getOrThrow().getFirst();
