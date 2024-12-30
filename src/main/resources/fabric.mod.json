@@ -16,6 +16,7 @@
 	"mixins": [
 		"colorfulsubtitles.mixin.json"
 	],
+	"accessWidener": "colorfulsubtitles.accesswidener",
 	"custom": {
 		"modmenu": {
 			"links": {

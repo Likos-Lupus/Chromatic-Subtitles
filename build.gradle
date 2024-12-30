@@ -1,10 +1,7 @@
 plugins {
-	id "fabric-loom" version "1.6.11"
+	id "fabric-loom" version "1.9.2"
 	id "maven-publish"
 }
-
-sourceCompatibility = JavaVersion.VERSION_21
-targetCompatibility = JavaVersion.VERSION_21
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version
@@ -15,6 +12,10 @@ repositories {
 		name = "Fabric"
 		url = "https://maven.fabricmc.net/"
 	}
+}
+
+loom {
+	accessWidenerPath = file("src/main/resources/colorfulsubtitles.accesswidener")
 }
 
 dependencies {
@@ -32,7 +33,13 @@ processResources {
 	}
 }
 
+java {
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+
 tasks.withType(JavaCompile) {
+	options.release = 21
 	options.encoding = "UTF-8"
 }
 
