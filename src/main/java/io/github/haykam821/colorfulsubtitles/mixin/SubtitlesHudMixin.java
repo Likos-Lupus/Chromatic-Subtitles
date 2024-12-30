@@ -35,7 +35,7 @@ public class SubtitlesHudMixin {
 
 	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithShadow(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)I"), index = 4)
 	private int modifyTextDrawColor(int color) {
-		return ColorHelper.Argb.mixColor(color, this.iterationEntry.getTextColor());
+		return ColorHelper.mix(color, this.iterationEntry.getTextColor());
 	}
 
 	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;fill(IIIII)V"), index = 4)
