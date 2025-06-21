@@ -6,6 +6,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.text.TextColor;
+import net.minecraft.util.math.ColorHelper;
 
 @Environment(EnvType.CLIENT)
 public interface ColorHolder {
@@ -19,7 +20,7 @@ public interface ColorHolder {
 		ColorfulSubtitlesConfig config = ColorfulSubtitles.getConfig();
 		SubtitleColor color = config.getColorForCategory(sound.getCategory());
 
-		this.setTextColor(color.getText().getRgb());
+		this.setTextColor(ColorHelper.fullAlpha(color.getText().getRgb()));
 
 		if (color.getBackground().isPresent()) {
 			this.setBackgroundColor(color.getBackground().get().getRgb());
