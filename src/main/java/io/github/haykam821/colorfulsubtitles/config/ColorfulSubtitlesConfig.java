@@ -20,6 +20,7 @@ public class ColorfulSubtitlesConfig {
 		.put(SoundCategory.PLAYERS, SubtitleColor.ofText(Formatting.GOLD))
 		.put(SoundCategory.AMBIENT, SubtitleColor.ofText(Formatting.GRAY))
 		.put(SoundCategory.VOICE, SubtitleColor.ofText(Formatting.LIGHT_PURPLE))
+		.put(SoundCategory.UI, SubtitleColor.ofText(Formatting.BLUE))
 		.build();
 
 	public static final ColorfulSubtitlesConfig DEFAULT = new ColorfulSubtitlesConfig(DEFAULT_COLORS, SubtitleColor.DEFAULT);
