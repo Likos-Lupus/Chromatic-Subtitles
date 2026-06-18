@@ -1,11 +1,11 @@
 # Chromatic Subtitles
 
-Chromatic Subtitles is a continuation fork of Colorful Subtitles by haykam821.
-The original project is licensed under MIT.
+Chromatic Subtitles is a continuation fork of [Colorful Subtitles](https://github.com/haykam821/Colorful-Subtitles) by
+haykam821.
 
 Changes subtitle colors based on their sound category.
 
-Chromatic Subtitles requires the [Fabric modloader](https://fabricmc.net/use/).
+The mod currently supports Fabric only, but NeoForge support is planned.
 
 ## Installation
 
@@ -81,3 +81,8 @@ background = "#000000"
 ```
 
 Colors can be Minecraft formatting color names, such as `dark_purple`, or hex colors, such as `#AA00AA`.
+
+## License
+
+The mod is licensed under MIT License.
+See [LICENSE](https://github.com/Likos-Lupus/Chromatic-Subtitles/blob/master/LICENSE) file for details.
