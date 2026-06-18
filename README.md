@@ -1,16 +1,15 @@
-# Colorful Subtitles
+# Chromatic Subtitles
 
-[![GitHub release](https://img.shields.io/github/release/haykam821/Colorful-Subtitles.svg?style=popout&label=github)](https://github.com/haykam821/Colorful-Subtitles/releases/latest)
-[![CurseForge](https://img.shields.io/static/v1?style=popout&label=curseforge&message=project&color=6441A4)](https://www.curseforge.com/minecraft/mc-mods/colorful-subtitles)
-[![Discord](https://img.shields.io/static/v1?style=popout&label=chat&message=discord&color=7289DA)](https://haykam.com/links/discord)
+Chromatic Subtitles is a continuation fork of Colorful Subtitles by haykam821.
+The original project is licensed under MIT.
 
-Changes the color of subtitles based on their sound category.
+Changes subtitle colors based on their sound category.
 
-Colorful Subtitles requires the [Fabric modloader](https://fabricmc.net/use/).
+Chromatic Subtitles requires the [Fabric modloader](https://fabricmc.net/use/).
 
 ## Installation
 
-1. Download Colorful Subtitles from [CurseForge](https://www.curseforge.com/minecraft/mc-mods/colorful-subtitles/files) or [GitHub](https://github.com/haykam821/Colorful-Subtitles/releases).
+1. Download Chromatic Subtitles from the project releases page.
 2. Place the downloaded file in your `mods` folder.
 
 ## Usage
@@ -27,3 +26,58 @@ When this mod is installed, subtitles will automatically have a different color 
 * Ambient: gray
 * Voice: light purple
 * UI: blue
+
+## Configuration
+
+Chromatic Subtitles creates its config at: `config/chromaticsubtitles.toml`. If a legacy Colorful Subtitles JSON config
+exists at: `config/colorfulsubtitles.json`, it will be converted to: `config/chromaticsubtitles.toml` on first launch.
+The legacy JSON file is left in place.
+
+During development, an existing `config/chromaticsubtitles.json` file can also be converted to the new TOML format if no
+TOML config exists.
+
+Colors can be configured with the simple color form:
+
+```toml
+default_color = "white"
+
+[colors]
+music = "dark_purple"
+record = "dark_red"
+weather = "aqua"
+block = "green"
+hostile = "red"
+neutral = "yellow"
+player = "gold"
+ambient = "gray"
+voice = "light_purple"
+ui = "blue"
+```
+
+or with the table form when a custom background color is needed:
+
+```toml
+default_color = "white"
+
+[colors]
+music = "dark_purple"
+record = "dark_red"
+
+[colors.weather]
+text = "aqua"
+background = "#002233"
+
+[colors.hostile]
+text = "red"
+background = "#330000"
+```
+
+`default_color` also supports the table form:
+
+```toml
+[default_color]
+text = "white"
+background = "#000000"
+```
+
+Colors can be Minecraft formatting color names, such as `dark_purple`, or hex colors, such as `#AA00AA`.

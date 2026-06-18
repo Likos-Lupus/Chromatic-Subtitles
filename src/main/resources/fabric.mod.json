@@ -1,33 +1,30 @@
 {
-	"schemaVersion": 1,
-	"id": "colorfulsubtitles",
-	"version": "${version}",
-	"name": "Colorful Subtitles",
-	"description": "Changes the color of subtitles based on their sound category.",
-	"authors": [
-		"haykam821"
-	],
-	"contact": {
-		"homepage": "https://github.com/haykam821/Colorful-Subtitles#readme",
-		"issues": "https://github.com/haykam821/Colorful-Subtitles/issues",
-		"sources": "https://github.com/haykam821/Colorful-Subtitles"
-	},
-	"environment": "client",
-	"mixins": [
-		"colorfulsubtitles.mixin.json"
-	],
-	"accessWidener": "colorfulsubtitles.accesswidener",
-	"custom": {
-		"modmenu": {
-			"links": {
-				"modmenu.discord": "https://haykam.com/links/discord"
-			}
-		}
-	},
-	"license": "MIT",
-	"icon": "assets/colorfulsubtitles/icon.png",
-	"depends": {
-		"fabricloader": ">=0.4.0",
-		"minecraft": ">=1.21.6-beta.3"
-	}
+  "schemaVersion": 1,
+  "id": "chromaticsubtitles",
+  "version": "${version}",
+  "name": "Chromatic Subtitles",
+  "description": "Changes subtitle colors based on their sound category.",
+  "authors": [
+    "Likos-Lupus",
+    "Chiloven945",
+    "haykam821"
+  ],
+  "contributors": [
+    "Chromatic Subtitles contributors"
+  ],
+  "contact": {
+    "sources": "https://github.com/Likos-Lupus/Chromatic-Subtitles",
+    "issues": "https://github.com/Likos-Lupus/Chromatic-Subtitles/issues"
+  },
+  "environment": "client",
+  "mixins": [
+    "chromaticsubtitles.mixin.json"
+  ],
+  "accessWidener": "chromaticsubtitles.accesswidener",
+  "license": "MIT",
+  "icon": "assets/chromaticsubtitles/icon.png",
+  "depends": {
+    "fabricloader": ">=0.18.1",
+    "minecraft": ">=1.21.11 <26.1"
+  }
 }

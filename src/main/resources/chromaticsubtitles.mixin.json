@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "top.likoslupus.chromaticsubtitles.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "SubtitleEntryMixin",
+    "SubtitlesHudMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

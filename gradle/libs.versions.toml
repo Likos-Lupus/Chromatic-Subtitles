@@ -1,0 +1,27 @@
+[versions]
+modVersion = "2.0.0"
+
+targetJava = "21"
+minecraft = "1.21.11"
+
+yarn = "1.21.11+build.6"
+fabric-loader = "0.19.3"
+fabric-loom = "1.14.10"
+
+night-config = "3.9.0"
+
+jspecify = "1.0.0"
+
+[libraries]
+minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
+
+yarn = { module = "net.fabricmc:yarn", version.ref = "yarn" }
+fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
+
+night-config-core = { module = "com.electronwill.night-config:core", version.ref = "night-config" }
+night-config-toml = { module = "com.electronwill.night-config:toml", version.ref = "night-config" }
+
+jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
+
+[plugins]
+fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
