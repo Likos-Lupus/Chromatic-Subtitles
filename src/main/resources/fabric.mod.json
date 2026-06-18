@@ -3,7 +3,7 @@
   "id": "chromaticsubtitles",
   "version": "${version}",
   "name": "Chromatic Subtitles",
-  "description": "Changes subtitle colors based on their sound category.",
+  "description": "Changes subtitle colors based on their sound source.",
   "authors": [
     "Likos-Lupus",
     "Chiloven945",
@@ -24,7 +24,7 @@
   "license": "MIT",
   "icon": "assets/chromaticsubtitles/icon.png",
   "depends": {
-    "fabricloader": ">=0.18.1",
-    "minecraft": ">=1.21.11 <26.1"
+    "fabricloader": ">=${loaderVersion}",
+    "minecraft": "~${minecraftVersion}"
   }
 }

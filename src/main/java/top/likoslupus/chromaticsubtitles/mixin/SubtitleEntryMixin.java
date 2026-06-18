@@ -15,7 +15,7 @@ import top.likoslupus.chromaticsubtitles.extension.SubtitleColorAccess;
 public class SubtitleEntryMixin implements SubtitleColorAccess {
 
     @Unique
-    private int chromaticSubtitles$textColor = 0;
+    private int chromaticSubtitles$textColor = 0xFFFFFFFF;
 
     @Unique
     private int chromaticSubtitles$backgroundColor = -1;

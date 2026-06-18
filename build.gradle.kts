@@ -6,6 +6,7 @@ plugins {
 val modVersion = libs.versions.modVersion.get()
 val targetJava = libs.versions.targetJava.get().toInt()
 val minecraftVersion = libs.versions.minecraft.get()
+val loaderVersion = libs.versions.fabric.loader.get()
 
 group = "top.likoslupus"
 version = "$modVersion+$minecraftVersion"
@@ -20,8 +21,7 @@ loom {
 
 dependencies {
     minecraft(libs.minecraft)
-    mappings(loom.officialMojangMappings())
-    modImplementation(libs.fabric.loader)
+    implementation(libs.fabric.loader)
 
     implementation(libs.night.config.core)
     implementation(libs.night.config.toml)
@@ -33,14 +33,17 @@ dependencies {
 }
 
 tasks.processResources {
-    inputs.property("version", project.version)
+    val props = mapOf(
+        "version" to project.version,
+        "loaderVersion" to loaderVersion,
+        "minecraftVersion" to minecraftVersion
+    )
+
+    inputs.properties(props)
+    filteringCharset = "UTF-8"
 
     filesMatching("fabric.mod.json") {
-        expand(
-            mapOf(
-                "version" to project.version
-            )
-        )
+        expand(props)
     }
 }
 

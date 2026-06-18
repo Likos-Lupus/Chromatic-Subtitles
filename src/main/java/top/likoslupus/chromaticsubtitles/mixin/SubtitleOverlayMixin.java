@@ -3,24 +3,26 @@
 // Copyright (c) 2026 Likos-Lupus and Chromatic Subtitles contributors
 package top.likoslupus.chromaticsubtitles.mixin;
 
-import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.SubtitleOverlay;
 import net.minecraft.client.gui.components.SubtitleOverlay.Subtitle;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.WeighedSoundEvents;
-import net.minecraft.util.ARGB;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import top.likoslupus.chromaticsubtitles.extension.SubtitleColorAccess;
 
-import java.util.Iterator;
 import java.util.List;
 
 @Mixin(SubtitleOverlay.class)
@@ -28,94 +30,148 @@ import java.util.List;
 public class SubtitleOverlayMixin {
 
     @Unique
-    private SubtitleColorAccess chromaticSubtitles$currentEntry;
+    @Nullable
+    private Subtitle chromaticSubtitles$currentSubtitle;
 
-    @Redirect(
-            method = "render",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Ljava/util/Iterator;next()Ljava/lang/Object;",
-                    ordinal = 2
-            )
-    )
-    private Object chromaticSubtitles$updateCurrentEntry(Iterator<Object> iterator) {
-        var entry = iterator.next();
-        this.chromaticSubtitles$currentEntry = entry instanceof SubtitleColorAccess access ? access : null;
-        return entry;
-    }
-
-    @ModifyArg(
-            method = "render",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)V"
-            ),
-            index = 4
-    )
-    private int chromaticSubtitles$modifyTextDrawColor(int color) {
-        if (this.chromaticSubtitles$currentEntry == null) {
-            return color;
-        }
-
-        return ARGB.multiply(color, this.chromaticSubtitles$currentEntry.chromaticSubtitles$getTextColor());
-    }
-
-    @ModifyArg(
-            method = "render",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/GuiGraphics;fill(IIIII)V"
-            ),
-            index = 4
-    )
-    private int chromaticSubtitles$modifyBackgroundDrawColor(int color) {
-        if (this.chromaticSubtitles$currentEntry == null) {
-            return color;
-        }
-
-        var backgroundColor = this.chromaticSubtitles$currentEntry.chromaticSubtitles$getBackgroundColor();
-
-        // Use vanilla background color.
-        if (backgroundColor < 0) {
-            return color;
-        }
-
-        // Use custom RGB with vanilla opacity.
-        return color | (backgroundColor & 0x00FFFFFF);
-    }
-
-    @Inject(
+    @WrapOperation(
             method = "onPlaySound",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/components/SubtitleOverlay$Subtitle;refresh(Lnet/minecraft/world/phys/Vec3;)V"
             )
     )
-    private void chromaticSubtitles$resetColor(
+    private void chromaticSubtitles$setColorWhenRefreshingExistingSubtitle(
+            Subtitle subtitle,
+            Vec3 location,
+            Operation<Void> original,
             SoundInstance sound,
-            WeighedSoundEvents soundSet,
-            float range,
-            CallbackInfo ci,
-            @Local Subtitle entry
+            WeighedSoundEvents soundEvent,
+            float range
     ) {
-        ((SubtitleColorAccess) entry).chromaticSubtitles$setColor(sound);
+        ((SubtitleColorAccess) subtitle).chromaticSubtitles$setColor(sound);
+        original.call(subtitle, location);
     }
 
-    @Redirect(
+    @WrapOperation(
             method = "onPlaySound",
             at = @At(
                     value = "INVOKE",
                     target = "Ljava/util/List;add(Ljava/lang/Object;)Z"
             )
     )
-    private boolean chromaticSubtitles$setColor(
-            List<Object> entries,
-            Object entry,
+    private boolean chromaticSubtitles$setColorWhenAddingNewSubtitle(
+            List<Subtitle> subtitles,
+            Object subtitle,
+            Operation<Boolean> original,
             SoundInstance sound,
-            WeighedSoundEvents soundSet
+            WeighedSoundEvents soundEvent,
+            float range
     ) {
-        ((SubtitleColorAccess) entry).chromaticSubtitles$setColor(sound);
-        return entries.add(entry);
+        if (subtitle instanceof SubtitleColorAccess access) {
+            access.chromaticSubtitles$setColor(sound);
+        }
+
+        return original.call(subtitles, subtitle);
+    }
+
+    @WrapOperation(
+            method = "extractRenderState",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/components/SubtitleOverlay$Subtitle;getText()Lnet/minecraft/network/chat/Component;"
+            )
+    )
+    private Component chromaticSubtitles$trackRenderedSubtitle(
+            Subtitle subtitle,
+            Operation<Component> original
+    ) {
+        this.chromaticSubtitles$currentSubtitle = subtitle;
+        return original.call(subtitle);
+    }
+
+    @WrapOperation(
+            method = "extractRenderState",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;fill(IIIII)V"
+            )
+    )
+    private void chromaticSubtitles$applyBackgroundColor(
+            GuiGraphicsExtractor graphics,
+            int x0,
+            int y0,
+            int x1,
+            int y1,
+            int col,
+            Operation<Void> original
+    ) {
+        original.call(graphics, x0, y0, x1, y1, this.chromaticSubtitles$modifyBackgroundColor(col));
+    }
+
+    @Unique
+    private int chromaticSubtitles$modifyBackgroundColor(int vanillaColor) {
+        var subtitle = this.chromaticSubtitles$currentSubtitle;
+
+        if (!(subtitle instanceof SubtitleColorAccess access)) {
+            return vanillaColor;
+        }
+
+        int backgroundColor = access.chromaticSubtitles$getBackgroundColor();
+
+        if (backgroundColor < 0) {
+            return vanillaColor;
+        }
+
+        return (vanillaColor & 0xFF000000) | (backgroundColor & 0x00FFFFFF);
+    }
+
+    @WrapOperation(
+            method = "extractRenderState",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;text(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)V"
+            )
+    )
+    private void chromaticSubtitles$applySubtitleTextColor(
+            GuiGraphicsExtractor graphics,
+            Font font,
+            Component str,
+            int x,
+            int y,
+            int color,
+            Operation<Void> original
+    ) {
+        original.call(graphics, font, str, x, y, this.chromaticSubtitles$modifyTextColor(color));
+    }
+
+    @Unique
+    private int chromaticSubtitles$modifyTextColor(int vanillaColor) {
+        var subtitle = this.chromaticSubtitles$currentSubtitle;
+
+        if (!(subtitle instanceof SubtitleColorAccess access)) {
+            return vanillaColor;
+        }
+
+        int textColor = access.chromaticSubtitles$getTextColor();
+        int brightness = vanillaColor & 0xFF;
+        int alpha = vanillaColor & 0xFF000000;
+
+        int red = ((textColor >> 16) & 0xFF) * brightness / 255;
+        int green = ((textColor >> 8) & 0xFF) * brightness / 255;
+        int blue = (textColor & 0xFF) * brightness / 255;
+
+        return alpha | (red << 16) | (green << 8) | blue;
+    }
+
+    @Inject(
+            method = "extractRenderState",
+            at = @At("RETURN")
+    )
+    private void chromaticSubtitles$clearTrackedSubtitle(
+            GuiGraphicsExtractor graphics,
+            CallbackInfo ci
+    ) {
+        this.chromaticSubtitles$currentSubtitle = null;
     }
 
 }

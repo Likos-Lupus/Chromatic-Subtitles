@@ -2,7 +2,7 @@
 
 [![Stars](https://img.shields.io/github/stars/Likos-Lupus/Chromatic-Subtitles?style=flat-square&label=Stars&labelColor=444444&color=eac54f)](https://github.com/Likos-Lupus/Chromatic-Subtitles/)
 [![Release](https://img.shields.io/github/v/release/Likos-Lupus/Chromatic-Subtitles?style=flat-square&labelColor=444444&label=Release&include_prereleases)](https://github.com/Likos-Lupus/Chromatic-Subtitles/releases)
-[![GitHub CI](https://img.shields.io/github/actions/workflow/status/Likos-Lupus/Chromatic-Subtitles/ci.yml?style=flat-square&labelColor=444444&branch=master&label=GitHub%20CI)](https://github.com/Our-Island/invertoTimer/actions/workflows/ci.yml)
+[![GitHub CI](https://img.shields.io/github/actions/workflow/status/Likos-Lupus/Chromatic-Subtitles/ci.yml?style=flat-square&labelColor=444444&branch=master&label=GitHub%20CI)](https://github.com/Likos-Lupus/Chromatic-Subtitles/actions/workflows/ci.yml)
 [![Modrinth](https://img.shields.io/badge/Modrinth-Chromatic%20Subtitles-22ff84?style=flat-square&labelColor=444444)](https://modrinth.com/mod/chromatic-subtitles/)
 [![CurseForge](https://img.shields.io/badge/CurseForge-Chromatic%20Subtitles-f16436?style=flat-square&labelColor=444444)](https://www.curseforge.com/minecraft/mc-mods/chromatic-subtitles)
 
