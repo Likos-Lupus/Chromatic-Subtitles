@@ -5,25 +5,25 @@ package top.likoslupus.chromaticsubtitles.config;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.sounds.SoundSource;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Map;
 
 public final class ChromaticSubtitlesConfig {
 
-    private static final Map<SoundCategory, SubtitleColor> DEFAULT_COLORS = Map.ofEntries(
-            Map.entry(SoundCategory.MUSIC, SubtitleColor.ofText(Formatting.DARK_PURPLE)),
-            Map.entry(SoundCategory.RECORDS, SubtitleColor.ofText(Formatting.DARK_RED)),
-            Map.entry(SoundCategory.WEATHER, SubtitleColor.ofText(Formatting.AQUA)),
-            Map.entry(SoundCategory.BLOCKS, SubtitleColor.ofText(Formatting.GREEN)),
-            Map.entry(SoundCategory.HOSTILE, SubtitleColor.ofText(Formatting.RED)),
-            Map.entry(SoundCategory.NEUTRAL, SubtitleColor.ofText(Formatting.YELLOW)),
-            Map.entry(SoundCategory.PLAYERS, SubtitleColor.ofText(Formatting.GOLD)),
-            Map.entry(SoundCategory.AMBIENT, SubtitleColor.ofText(Formatting.GRAY)),
-            Map.entry(SoundCategory.VOICE, SubtitleColor.ofText(Formatting.LIGHT_PURPLE)),
-            Map.entry(SoundCategory.UI, SubtitleColor.ofText(Formatting.BLUE))
+    private static final Map<SoundSource, SubtitleColor> DEFAULT_COLORS = Map.ofEntries(
+            Map.entry(SoundSource.MUSIC, SubtitleColor.ofText(ChatFormatting.DARK_PURPLE)),
+            Map.entry(SoundSource.RECORDS, SubtitleColor.ofText(ChatFormatting.DARK_RED)),
+            Map.entry(SoundSource.WEATHER, SubtitleColor.ofText(ChatFormatting.AQUA)),
+            Map.entry(SoundSource.BLOCKS, SubtitleColor.ofText(ChatFormatting.GREEN)),
+            Map.entry(SoundSource.HOSTILE, SubtitleColor.ofText(ChatFormatting.RED)),
+            Map.entry(SoundSource.NEUTRAL, SubtitleColor.ofText(ChatFormatting.YELLOW)),
+            Map.entry(SoundSource.PLAYERS, SubtitleColor.ofText(ChatFormatting.GOLD)),
+            Map.entry(SoundSource.AMBIENT, SubtitleColor.ofText(ChatFormatting.GRAY)),
+            Map.entry(SoundSource.VOICE, SubtitleColor.ofText(ChatFormatting.LIGHT_PURPLE)),
+            Map.entry(SoundSource.UI, SubtitleColor.ofText(ChatFormatting.BLUE))
     );
 
     public static final ChromaticSubtitlesConfig DEFAULT = new ChromaticSubtitlesConfig(
@@ -32,7 +32,7 @@ public final class ChromaticSubtitlesConfig {
     );
 
     public static final Codec<ChromaticSubtitlesConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ChromaticSubtitlesCodecs.SOUND_CATEGORY_TO_SUBTITLE_COLOR.optionalFieldOf(
+            ChromaticSubtitlesCodecs.SOUND_SOURCE_TO_SUBTITLE_COLOR.optionalFieldOf(
                     "colors",
                     DEFAULT_COLORS
             ).forGetter(ChromaticSubtitlesConfig::colors),
@@ -42,11 +42,11 @@ public final class ChromaticSubtitlesConfig {
             ).forGetter(ChromaticSubtitlesConfig::defaultColor)
     ).apply(instance, ChromaticSubtitlesConfig::new));
 
-    private final Map<SoundCategory, SubtitleColor> colors;
+    private final Map<SoundSource, SubtitleColor> colors;
     private final SubtitleColor defaultColor;
 
     private ChromaticSubtitlesConfig(
-            Map<SoundCategory, SubtitleColor> colors,
+            Map<SoundSource, SubtitleColor> colors,
             SubtitleColor defaultColor
     ) {
         this.colors = Map.copyOf(colors);
@@ -54,21 +54,21 @@ public final class ChromaticSubtitlesConfig {
     }
 
     public static @NonNull ChromaticSubtitlesConfig of(
-            Map<SoundCategory, SubtitleColor> colors,
+            Map<SoundSource, SubtitleColor> colors,
             SubtitleColor defaultColor
     ) {
         return new ChromaticSubtitlesConfig(colors, defaultColor);
     }
 
-    public SubtitleColor getColorForCategory(SoundCategory category) {
-        return this.colors.getOrDefault(category, this.defaultColor);
+    public SubtitleColor getColorForSource(SoundSource source) {
+        return this.colors.getOrDefault(source, this.defaultColor);
     }
 
     public SubtitleColor getDefaultColor() {
         return this.defaultColor;
     }
 
-    public Map<SoundCategory, SubtitleColor> colors() {
+    public Map<SoundSource, SubtitleColor> colors() {
         return this.colors;
     }
 

@@ -8,8 +8,8 @@ import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.text.TextColor;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.sounds.SoundSource;
 import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
@@ -47,20 +47,20 @@ public final class ChromaticSubtitlesToml {
                 ? SubtitleColor.DEFAULT
                 : ChromaticSubtitlesToml.parseSubtitleColor(defaultColorValue, DEFAULT_COLOR_KEY);
 
-        Map<SoundCategory, SubtitleColor> colors = new EnumMap<>(SoundCategory.class);
+        Map<SoundSource, SubtitleColor> colors = new EnumMap<>(SoundSource.class);
         var colorsValue = config.get(COLORS_KEY);
 
         if (colorsValue == null) {
             colors.putAll(ChromaticSubtitlesConfig.DEFAULT.colors());
         } else if (colorsValue instanceof UnmodifiableConfig colorsConfig) {
             for (var entry : colorsConfig.entrySet()) {
-                var categoryName = entry.getKey();
-                var category = SoundCategoryNames.byName(categoryName)
+                var sourceName = entry.getKey();
+                var source = SoundSourceNames.byName(sourceName)
                         .orElseThrow(() ->
-                                new IllegalArgumentException("Unknown sound category '%s' at colors.%s".formatted(categoryName, categoryName))
+                                new IllegalArgumentException("Unknown sound source '%s' at colors.%s".formatted(sourceName, sourceName))
                         );
 
-                colors.put(category, ChromaticSubtitlesToml.parseSubtitleColor(entry.getValue(), COLORS_KEY + "." + categoryName));
+                colors.put(source, ChromaticSubtitlesToml.parseSubtitleColor(entry.getValue(), COLORS_KEY + "." + sourceName));
             }
         } else {
             throw new IllegalArgumentException("Expected '%s' to be a TOML table".formatted(COLORS_KEY));
@@ -129,17 +129,17 @@ public final class ChromaticSubtitlesToml {
         ChromaticSubtitlesToml.writeSubtitleColor(config, DEFAULT_COLOR_KEY, chromaticConfig.defaultColor());
 
         var colors = chromaticConfig.colors();
-        for (var category : SoundCategory.values()) {
-            var color = colors.get(category);
+        for (var source : SoundSource.values()) {
+            var color = colors.get(source);
 
             if (color != null) {
-                ChromaticSubtitlesToml.writeSubtitleColor(config, COLORS_KEY + "." + category.getName(), color);
+                ChromaticSubtitlesToml.writeSubtitleColor(config, COLORS_KEY + "." + source.getName(), color);
             }
         }
     }
 
     private static void addComments(CommentedFileConfig config) {
-        config.setComment(DEFAULT_COLOR_KEY, "Used when a sound category has no explicit color.");
+        config.setComment(DEFAULT_COLOR_KEY, "Used when a sound source has no explicit color.");
         config.setComment(COLORS_KEY, "Colors can be Minecraft formatting color names, such as \"dark_purple\", or hex colors, such as \"#AA00AA\".");
     }
 

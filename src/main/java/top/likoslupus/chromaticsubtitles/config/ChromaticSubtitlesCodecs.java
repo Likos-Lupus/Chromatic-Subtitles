@@ -7,7 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Keyable;
-import net.minecraft.sound.SoundCategory;
+import net.minecraft.sounds.SoundSource;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -18,35 +18,35 @@ import java.util.stream.Stream;
  */
 public final class ChromaticSubtitlesCodecs {
 
-    private static final SoundCategory[] SOUND_CATEGORIES = SoundCategory.values();
+    private static final SoundSource[] SOUND_SOURCES = SoundSource.values();
 
-    private static final Codec<SoundCategory> SOUND_CATEGORY = Codec.STRING.comapFlatMap(
-            ChromaticSubtitlesCodecs::getSoundCategory,
-            SoundCategory::getName
+    private static final Codec<SoundSource> SOUND_SOURCE = Codec.STRING.comapFlatMap(
+            ChromaticSubtitlesCodecs::getSoundSource,
+            SoundSource::getName
     );
 
-    private static final Keyable SOUND_CATEGORY_KEYS = new Keyable() {
+    private static final Keyable SOUND_SOURCE_KEYS = new Keyable() {
         @Override
         public <T> Stream<T> keys(DynamicOps<T> ops) {
-            return Arrays.stream(SOUND_CATEGORIES)
-                    .map(SoundCategory::getName)
+            return Arrays.stream(SOUND_SOURCES)
+                    .map(SoundSource::getName)
                     .map(ops::createString);
         }
     };
 
-    static final Codec<Map<SoundCategory, SubtitleColor>> SOUND_CATEGORY_TO_SUBTITLE_COLOR = Codec.simpleMap(
-            SOUND_CATEGORY,
+    static final Codec<Map<SoundSource, SubtitleColor>> SOUND_SOURCE_TO_SUBTITLE_COLOR = Codec.simpleMap(
+            SOUND_SOURCE,
             SubtitleColor.CODEC,
-            SOUND_CATEGORY_KEYS
+            SOUND_SOURCE_KEYS
     ).codec();
 
     private ChromaticSubtitlesCodecs() {
     }
 
-    private static DataResult<SoundCategory> getSoundCategory(String name) {
-        return SoundCategoryNames.byName(name)
+    private static DataResult<SoundSource> getSoundSource(String name) {
+        return SoundSourceNames.byName(name)
                 .map(DataResult::success)
-                .orElseGet(() -> DataResult.error(() -> "Unknown sound category '" + name + "'"));
+                .orElseGet(() -> DataResult.error(() -> "Unknown sound source '" + name + "'"));
     }
 
 }

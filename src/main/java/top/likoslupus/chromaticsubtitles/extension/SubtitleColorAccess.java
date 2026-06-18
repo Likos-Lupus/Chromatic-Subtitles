@@ -5,10 +5,11 @@ package top.likoslupus.chromaticsubtitles.extension;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.sound.SoundInstance;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.math.ColorHelper;
-import org.jspecify.annotations.NonNull;import top.likoslupus.chromaticsubtitles.ChromaticSubtitles;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.util.ARGB;
+import org.jspecify.annotations.NonNull;
+import top.likoslupus.chromaticsubtitles.ChromaticSubtitles;
 
 @Environment(EnvType.CLIENT)
 public interface SubtitleColorAccess {
@@ -19,14 +20,14 @@ public interface SubtitleColorAccess {
 
     default void chromaticSubtitles$setColor(@NonNull SoundInstance sound) {
         var config = ChromaticSubtitles.getConfig();
-        var color = config.getColorForCategory(sound.getCategory());
+        var color = config.getColorForSource(sound.getSource());
         var fallbackColor = config.getDefaultColor();
 
-        this.chromaticSubtitles$setTextColor(ColorHelper.fullAlpha(color.text().getRgb()));
+        this.chromaticSubtitles$setTextColor(ARGB.opaque(color.text().getValue()));
         this.chromaticSubtitles$setBackgroundColor(
                 color.background()
                         .or(fallbackColor::background)
-                        .map(TextColor::getRgb)
+                        .map(TextColor::getValue)
                         .orElse(-1)
         );
     }

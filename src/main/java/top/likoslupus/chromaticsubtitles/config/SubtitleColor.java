@@ -6,8 +6,8 @@ package top.likoslupus.chromaticsubtitles.config;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TextColor;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
@@ -47,9 +47,9 @@ public record SubtitleColor(
         Objects.requireNonNull(background, "background");
     }
 
-    public static @NonNull SubtitleColor ofText(Formatting formatting) {
+    public static @NonNull SubtitleColor ofText(ChatFormatting formatting) {
         return SubtitleColor.ofText(
-                Objects.requireNonNull(TextColor.fromFormatting(formatting), "formatting must be a color")
+                Objects.requireNonNull(TextColor.fromLegacyFormat(formatting), "formatting must be a color")
         );
     }
 

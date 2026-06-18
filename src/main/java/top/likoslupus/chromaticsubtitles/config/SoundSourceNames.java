@@ -3,20 +3,20 @@
 // Copyright (c) 2026 Likos-Lupus and Chromatic Subtitles contributors
 package top.likoslupus.chromaticsubtitles.config;
 
-import net.minecraft.sound.SoundCategory;
+import net.minecraft.sounds.SoundSource;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 import java.util.Optional;
 
-public final class SoundCategoryNames {
+public final class SoundSourceNames {
 
-    private SoundCategoryNames() {
+    private SoundSourceNames() {
     }
 
-    public static @NonNull Optional<SoundCategory> byName(String name) {
-        return Arrays.stream(SoundCategory.values())
-                .filter(category -> category.getName().equals(name))
+    public static @NonNull Optional<SoundSource> byName(String name) {
+        return Arrays.stream(SoundSource.values())
+                .filter(source -> source.getName().equals(name))
                 .findFirst();
     }
 

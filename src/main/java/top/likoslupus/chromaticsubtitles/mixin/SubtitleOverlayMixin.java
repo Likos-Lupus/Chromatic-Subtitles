@@ -6,11 +6,11 @@ package top.likoslupus.chromaticsubtitles.mixin;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.hud.SubtitlesHud;
-import net.minecraft.client.gui.hud.SubtitlesHud.SubtitleEntry;
-import net.minecraft.client.sound.SoundInstance;
-import net.minecraft.client.sound.WeightedSoundSet;
-import net.minecraft.util.math.ColorHelper;
+import net.minecraft.client.gui.components.SubtitleOverlay;
+import net.minecraft.client.gui.components.SubtitleOverlay.Subtitle;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.client.sounds.WeighedSoundEvents;
+import net.minecraft.util.ARGB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,9 +23,9 @@ import top.likoslupus.chromaticsubtitles.extension.SubtitleColorAccess;
 import java.util.Iterator;
 import java.util.List;
 
-@Mixin(SubtitlesHud.class)
+@Mixin(SubtitleOverlay.class)
 @Environment(EnvType.CLIENT)
-public class SubtitlesHudMixin {
+public class SubtitleOverlayMixin {
 
     @Unique
     private SubtitleColorAccess chromaticSubtitles$currentEntry;
@@ -48,7 +48,7 @@ public class SubtitlesHudMixin {
             method = "render",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithShadow(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)V"
+                    target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)V"
             ),
             index = 4
     )
@@ -57,14 +57,14 @@ public class SubtitlesHudMixin {
             return color;
         }
 
-        return ColorHelper.mix(color, this.chromaticSubtitles$currentEntry.chromaticSubtitles$getTextColor());
+        return ARGB.multiply(color, this.chromaticSubtitles$currentEntry.chromaticSubtitles$getTextColor());
     }
 
     @ModifyArg(
             method = "render",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/DrawContext;fill(IIIII)V"
+                    target = "Lnet/minecraft/client/gui/GuiGraphics;fill(IIIII)V"
             ),
             index = 4
     )
@@ -85,24 +85,24 @@ public class SubtitlesHudMixin {
     }
 
     @Inject(
-            method = "onSoundPlayed",
+            method = "onPlaySound",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/hud/SubtitlesHud$SubtitleEntry;reset(Lnet/minecraft/util/math/Vec3d;)V"
+                    target = "Lnet/minecraft/client/gui/components/SubtitleOverlay$Subtitle;refresh(Lnet/minecraft/world/phys/Vec3;)V"
             )
     )
     private void chromaticSubtitles$resetColor(
             SoundInstance sound,
-            WeightedSoundSet soundSet,
+            WeighedSoundEvents soundSet,
             float range,
             CallbackInfo ci,
-            @Local SubtitleEntry entry
+            @Local Subtitle entry
     ) {
         ((SubtitleColorAccess) entry).chromaticSubtitles$setColor(sound);
     }
 
     @Redirect(
-            method = "onSoundPlayed",
+            method = "onPlaySound",
             at = @At(
                     value = "INVOKE",
                     target = "Ljava/util/List;add(Ljava/lang/Object;)Z"
@@ -112,7 +112,7 @@ public class SubtitlesHudMixin {
             List<Object> entries,
             Object entry,
             SoundInstance sound,
-            WeightedSoundSet soundSet
+            WeighedSoundEvents soundSet
     ) {
         ((SubtitleColorAccess) entry).chromaticSubtitles$setColor(sound);
         return entries.add(entry);

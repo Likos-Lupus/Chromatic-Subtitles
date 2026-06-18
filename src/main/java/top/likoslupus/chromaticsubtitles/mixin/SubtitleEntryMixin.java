@@ -5,12 +5,12 @@ package top.likoslupus.chromaticsubtitles.mixin;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.hud.SubtitlesHud;
+import net.minecraft.client.gui.components.SubtitleOverlay;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import top.likoslupus.chromaticsubtitles.extension.SubtitleColorAccess;
 
-@Mixin(SubtitlesHud.SubtitleEntry.class)
+@Mixin(SubtitleOverlay.Subtitle.class)
 @Environment(EnvType.CLIENT)
 public class SubtitleEntryMixin implements SubtitleColorAccess {
 
