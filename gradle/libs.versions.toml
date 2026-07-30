@@ -8,7 +8,7 @@ fabric-loader = "0.19.3"
 fabric-loom = "1.16-SNAPSHOT"
 
 night-config = "3.9.0"
-jspecify = "1.0.0"
+jspecify = "1.0.1"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
