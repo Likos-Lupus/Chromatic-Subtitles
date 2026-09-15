@@ -10,14 +10,16 @@ import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.sounds.SoundSource;
-import org.jspecify.annotations.NonNull;
+import top.likoslupus.chromaticsubtitles.ChromaticSubtitles;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
+import org.jspecify.annotations.NonNull;
 
 public final class ChromaticSubtitlesToml {
 
@@ -37,72 +39,159 @@ public final class ChromaticSubtitlesToml {
                         .build()
         ) {
             config.load();
-            return ChromaticSubtitlesToml.fromConfig(config);
+            return fromConfig(config);
         }
     }
 
     public static @NonNull ChromaticSubtitlesConfig fromConfig(@NonNull Config config) {
-        var defaultColorValue = config.get(DEFAULT_COLOR_KEY);
-        var defaultColor = defaultColorValue == null
-                ? SubtitleColor.DEFAULT
-                : ChromaticSubtitlesToml.parseSubtitleColor(defaultColorValue, DEFAULT_COLOR_KEY);
-
+        var defaultColor = readDefaultColor(config);
         Map<SoundSource, SubtitleColor> colors = new EnumMap<>(SoundSource.class);
+        colors.putAll(ChromaticSubtitlesConfig.DEFAULT.colors());
+
         var colorsValue = config.get(COLORS_KEY);
 
-        if (colorsValue == null) {
-            colors.putAll(ChromaticSubtitlesConfig.DEFAULT.colors());
-        } else if (colorsValue instanceof UnmodifiableConfig colorsConfig) {
-            for (var entry : colorsConfig.entrySet()) {
-                var sourceName = entry.getKey();
-                var source = SoundSourceNames.byName(sourceName)
-                        .orElseThrow(() ->
-                                new IllegalArgumentException("Unknown sound source '%s' at colors.%s".formatted(sourceName, sourceName))
-                        );
-
-                colors.put(source, ChromaticSubtitlesToml.parseSubtitleColor(entry.getValue(), COLORS_KEY + "." + sourceName));
-            }
-        } else {
-            throw new IllegalArgumentException("Expected '%s' to be a TOML table".formatted(COLORS_KEY));
+        if (colorsValue instanceof UnmodifiableConfig colorsConfig) {
+            readColors(colorsConfig, colors);
+        } else if (colorsValue != null) {
+            ChromaticSubtitles.LOGGER.warn(
+                    "Expected '{}' to be a TOML table; using built-in default subtitle colors",
+                    COLORS_KEY
+            );
         }
 
         return ChromaticSubtitlesConfig.of(colors, defaultColor);
     }
 
+    private static SubtitleColor readDefaultColor(Config config) {
+        var defaultColorValue = config.get(DEFAULT_COLOR_KEY);
+
+        if (defaultColorValue == null) {
+            return ChromaticSubtitlesConfig.DEFAULT.defaultColor();
+        }
+
+        try {
+            return parseSubtitleColor(defaultColorValue, DEFAULT_COLOR_KEY);
+        } catch (RuntimeException exception) {
+            ChromaticSubtitles.LOGGER.warn(
+                    "Failed to read '{}'; using the built-in default subtitle color",
+                    DEFAULT_COLOR_KEY,
+                    exception
+            );
+            return ChromaticSubtitlesConfig.DEFAULT.defaultColor();
+        }
+    }
+
+    private static void readColors(
+            UnmodifiableConfig colorsConfig,
+            Map<SoundSource, SubtitleColor> colors
+    ) {
+        colorsConfig.entrySet().forEach(entry -> {
+            var sourceName = entry.getKey();
+            var source = SoundSourceNames.byName(sourceName);
+
+            if (source.isEmpty()) {
+                ChromaticSubtitles.LOGGER.warn(
+                        "Unknown sound source '{}' at colors.{}; skipping this subtitle color entry",
+                        sourceName,
+                        sourceName
+                );
+                return;
+            }
+
+            try {
+                colors.put(
+                        source.get(),
+                        parseSubtitleColor(
+                                entry.getValue(),
+                                COLORS_KEY + "." + sourceName
+                        )
+                );
+            } catch (RuntimeException exception) {
+                ChromaticSubtitles.LOGGER.warn(
+                        "Failed to read subtitle color at colors.{}; skipping this entry",
+                        sourceName,
+                        exception
+                );
+            }
+        });
+    }
+
     private static SubtitleColor parseSubtitleColor(Object value, String path) {
         if (value instanceof String textColor) {
-            return SubtitleColor.ofText(ChromaticSubtitlesToml.parseTextColor(textColor));
+            return SubtitleColor.ofText(parseTextColor(textColor, path));
         }
 
         if (value instanceof UnmodifiableConfig colorConfig) {
             var textValue = colorConfig.get(TEXT_KEY);
 
             if (!(textValue instanceof String textColor)) {
-                throw new IllegalArgumentException("Expected '%s.%s' to be a color string".formatted(path, TEXT_KEY));
+                throw new IllegalArgumentException("Expected '%s.%s' to be a color string".formatted(
+                        path,
+                        TEXT_KEY
+                ));
             }
 
             var backgroundValue = colorConfig.get(BACKGROUND_KEY);
-            Optional<TextColor> background = backgroundValue == null
-                    ? Optional.empty()
-                    : Optional.of(ChromaticSubtitlesToml.parseBackgroundColor(backgroundValue, path));
+            Optional<TextColor> background = Optional.empty();
 
-            return new SubtitleColor(ChromaticSubtitlesToml.parseTextColor(textColor), background);
+            if (backgroundValue != null) {
+                try {
+                    background = Optional.of(parseBackgroundColor(
+                            backgroundValue,
+                            path
+                    ));
+                } catch (RuntimeException exception) {
+                    ChromaticSubtitles.LOGGER.warn(
+                            "Failed to read '{}.{}'; using no custom background color for this entry",
+                            path,
+                            BACKGROUND_KEY,
+                            exception
+                    );
+                }
+            }
+
+            return new SubtitleColor(
+                    parseTextColor(
+                            textColor,
+                            path + "." + TEXT_KEY
+                    ), background
+            );
         }
 
-        throw new IllegalArgumentException("Expected '%s' to be a color string or TOML table".formatted(path));
+        throw new IllegalArgumentException(
+                "Expected '%s' to be a color string or TOML table".formatted(path)
+        );
     }
 
-    private static TextColor parseTextColor(String value) {
-        return TextColor.CODEC.parse(JsonOps.INSTANCE, new JsonPrimitive(value))
-                .getOrThrow();
+    private static TextColor parseTextColor(String value, String path) {
+        try {
+            return TextColor.CODEC.parse(
+                            JsonOps.INSTANCE,
+                            new JsonPrimitive(value)
+                    )
+                    .getOrThrow();
+        } catch (Exception exception) {
+            throw new IllegalArgumentException(
+                    "Invalid color string '%s' at '%s'".formatted(value, path),
+                    exception
+            );
+        }
     }
 
     private static TextColor parseBackgroundColor(Object value, String path) {
         if (value instanceof String backgroundColor) {
-            return ChromaticSubtitlesToml.parseTextColor(backgroundColor);
+            return parseTextColor(
+                    backgroundColor,
+                    path + "." + BACKGROUND_KEY
+            );
         }
 
-        throw new IllegalArgumentException("Expected '%s.%s' to be a color string".formatted(path, BACKGROUND_KEY));
+        throw new IllegalArgumentException(
+                "Expected '%s.%s' to be a color string".formatted(
+                        path,
+                        BACKGROUND_KEY
+                )
+        );
     }
 
     public static void write(
@@ -116,8 +205,8 @@ public final class ChromaticSubtitlesToml {
                         .sync()
                         .build()
         ) {
-            ChromaticSubtitlesToml.toConfig(config, chromaticConfig);
-            ChromaticSubtitlesToml.addComments(config);
+            toConfig(config, chromaticConfig);
+            addComments(config);
             config.save();
         }
     }
@@ -126,32 +215,55 @@ public final class ChromaticSubtitlesToml {
             @NonNull Config config,
             @NonNull ChromaticSubtitlesConfig chromaticConfig
     ) {
-        ChromaticSubtitlesToml.writeSubtitleColor(config, DEFAULT_COLOR_KEY, chromaticConfig.defaultColor());
+        writeSubtitleColor(
+                config,
+                DEFAULT_COLOR_KEY,
+                chromaticConfig.defaultColor()
+        );
 
         var colors = chromaticConfig.colors();
-        for (var source : SoundSource.values()) {
-            var color = colors.get(source);
-
-            if (color != null) {
-                ChromaticSubtitlesToml.writeSubtitleColor(config, COLORS_KEY + "." + source.getName(), color);
-            }
-        }
+        Arrays.stream(SoundSource.values())
+                .forEach(source -> {
+                    var color = colors.get(source);
+                    if (color != null) {
+                        writeSubtitleColor(
+                                config,
+                                COLORS_KEY + "." + source.getName(),
+                                color
+                        );
+                    }
+                });
     }
 
     private static void addComments(CommentedFileConfig config) {
-        config.setComment(DEFAULT_COLOR_KEY, "Used when a sound source has no explicit color.");
-        config.setComment(COLORS_KEY, "Colors can be Minecraft formatting color names, such as \"dark_purple\", or hex colors, such as \"#AA00AA\".");
+        config.setComment(
+                DEFAULT_COLOR_KEY,
+                "Used when a sound source has no explicit color."
+        );
+        config.setComment(
+                COLORS_KEY,
+                "Colors can be Minecraft formatting color names, such as \"dark_purple\", or hex colors, such as \"#AA00AA\"."
+        );
     }
 
-    private static void writeSubtitleColor(Config config, String path, SubtitleColor color) {
+    private static void writeSubtitleColor(
+            Config config,
+            String path,
+            SubtitleColor color
+    ) {
         if (color.background().isEmpty()) {
-            config.set(path, ChromaticSubtitlesToml.encodeTextColor(color.text()));
+            config.set(path, encodeTextColor(color.text()));
             return;
         }
 
-        config.set(path + "." + TEXT_KEY, ChromaticSubtitlesToml.encodeTextColor(color.text()));
-        config.set(path + "." + BACKGROUND_KEY, ChromaticSubtitlesToml.encodeTextColor(color.background()
-                .orElseThrow()));
+        config.set(
+                path + "." + TEXT_KEY,
+                encodeTextColor(color.text())
+        );
+        config.set(
+                path + "." + BACKGROUND_KEY,
+                encodeTextColor(color.background().orElseThrow())
+        );
     }
 
     private static String encodeTextColor(TextColor color) {

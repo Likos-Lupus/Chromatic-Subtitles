@@ -20,12 +20,21 @@ public final class ChromaticSubtitles {
     private ChromaticSubtitles() {
     }
 
-    public static ChromaticSubtitlesConfig getConfig() {
-        if (config == null) {
-            config = ConfigManager.load();
-        }
+    public static synchronized ChromaticSubtitlesConfig getConfig() {
+        return config == null
+                ? loadConfig()
+                : config;
+    }
 
+    public static synchronized ChromaticSubtitlesConfig loadConfig() {
+        config = ConfigManager.load();
         return config;
+    }
+
+    public static synchronized ChromaticSubtitlesConfig reloadConfig() {
+        var reloadedConfig = loadConfig();
+        LOGGER.info("Reloaded Chromatic Subtitles config");
+        return reloadedConfig;
     }
 
 }

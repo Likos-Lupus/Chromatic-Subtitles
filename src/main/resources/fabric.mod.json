@@ -26,5 +26,10 @@
   "depends": {
     "fabricloader": ">=${loaderVersion}",
     "minecraft": "~${minecraftVersion}"
+  },
+  "entrypoints": {
+    "client": [
+      "top.likoslupus.chromaticsubtitles.ChromaticSubtitlesClient"
+    ]
   }
 }
