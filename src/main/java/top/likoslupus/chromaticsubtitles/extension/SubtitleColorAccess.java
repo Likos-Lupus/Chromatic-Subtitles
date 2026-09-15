@@ -8,8 +8,9 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.ARGB;
-import org.jspecify.annotations.NonNull;
 import top.likoslupus.chromaticsubtitles.ChromaticSubtitles;
+
+import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
 public interface SubtitleColorAccess {

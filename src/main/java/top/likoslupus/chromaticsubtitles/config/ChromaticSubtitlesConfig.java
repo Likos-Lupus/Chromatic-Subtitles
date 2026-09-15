@@ -7,9 +7,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.sounds.SoundSource;
-import org.jspecify.annotations.NonNull;
 
 import java.util.Map;
+import org.jspecify.annotations.NonNull;
 
 public final class ChromaticSubtitlesConfig {
 

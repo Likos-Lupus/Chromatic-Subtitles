@@ -4,10 +4,10 @@
 package top.likoslupus.chromaticsubtitles.config;
 
 import net.minecraft.sounds.SoundSource;
-import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 import java.util.Optional;
+import org.jspecify.annotations.NonNull;
 
 public final class SoundSourceNames {
 

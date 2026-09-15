@@ -8,17 +8,17 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.TextColor;
-import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
 import java.util.Optional;
+import org.jspecify.annotations.NonNull;
 
 public record SubtitleColor(
         @NonNull TextColor text,
         @NonNull Optional<TextColor> background
 ) {
 
-    public static final SubtitleColor DEFAULT = SubtitleColor.ofText(TextColor.fromRgb(0xFFFFFF));
+    public static final SubtitleColor DEFAULT = ofText(TextColor.fromRgb(0xFFFFFF));
 
     private static final Codec<SubtitleColor> RECORD_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             TextColor.CODEC.fieldOf("text")
@@ -48,8 +48,11 @@ public record SubtitleColor(
     }
 
     public static @NonNull SubtitleColor ofText(ChatFormatting formatting) {
-        return SubtitleColor.ofText(
-                Objects.requireNonNull(TextColor.fromLegacyFormat(formatting), "formatting must be a color")
+        return ofText(
+                Objects.requireNonNull(
+                        TextColor.fromLegacyFormat(formatting),
+                        "formatting must be a color"
+                )
         );
     }
 

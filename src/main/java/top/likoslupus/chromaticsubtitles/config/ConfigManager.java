@@ -23,25 +23,30 @@ public final class ConfigManager {
     }
 
     public static ChromaticSubtitlesConfig load() {
-        var configPath = ConfigManager.getConfigPath();
+        var configPath = getConfigPath();
 
         if (Files.exists(configPath)) {
-            return ConfigManager.readTomlOrDefault(configPath);
+            return readTomlOrDefault(configPath);
         }
 
-        var migratedConfig = ConfigManager.migrateLegacyJsonConfig();
+        var migratedConfig = migrateLegacyJsonConfig();
         if (migratedConfig.isPresent()) {
             var candidate = migratedConfig.get();
 
-            if (ConfigManager.writeTomlOrWarn(configPath, candidate.config())) {
-                ChromaticSubtitles.LOGGER.info("Migrated {} to Chromatic Subtitles TOML config", candidate.sourceDescription());
+            if (writeTomlOrWarn(configPath, candidate.config())) {
+                ChromaticSubtitles.LOGGER.info(
+                        "Migrated {} to Chromatic Subtitles TOML config",
+                        candidate.sourceDescription()
+                );
             }
 
             return candidate.config();
         }
 
-        if (ConfigManager.writeTomlOrWarn(configPath, ChromaticSubtitlesConfig.DEFAULT)) {
-            ChromaticSubtitles.LOGGER.warn("Could not find Chromatic Subtitles config; wrote default TOML config to file");
+        if (writeTomlOrWarn(configPath, ChromaticSubtitlesConfig.DEFAULT)) {
+            ChromaticSubtitles.LOGGER.warn(
+                    "Could not find Chromatic Subtitles config; wrote default TOML config to file"
+            );
         }
 
         return ChromaticSubtitlesConfig.DEFAULT;
@@ -57,27 +62,36 @@ public final class ConfigManager {
         try {
             return ChromaticSubtitlesToml.read(configPath);
         } catch (Exception exception) {
-            ChromaticSubtitles.LOGGER.warn("Failed to read Chromatic Subtitles TOML config; falling back to default without overwriting the file", exception);
+            ChromaticSubtitles.LOGGER.warn(
+                    "Failed to read Chromatic Subtitles TOML config; falling back to default without overwriting the file",
+                    exception
+            );
             return ChromaticSubtitlesConfig.DEFAULT;
         }
     }
 
     private static Optional<MigrationCandidate> migrateLegacyJsonConfig() {
-        var legacyColorfulConfig = ConfigManager.readLegacyJsonConfig(
-                ConfigManager.getLegacyColorfulJsonPath(),
+        var legacyColorfulConfig = readLegacyJsonConfig(
+                getLegacyColorfulJsonPath(),
                 "legacy Colorful Subtitles JSON config"
         );
 
         if (legacyColorfulConfig.isPresent()) {
-            return legacyColorfulConfig.map(config -> new MigrationCandidate(config, "legacy Colorful Subtitles JSON config"));
+            return legacyColorfulConfig.map(config -> new MigrationCandidate(
+                    config,
+                    "legacy Colorful Subtitles JSON config"
+            ));
         }
 
-        var devConfig = ConfigManager.readLegacyJsonConfig(
-                ConfigManager.getDevJsonPath(),
+        var devConfig = readLegacyJsonConfig(
+                getDevJsonPath(),
                 "development Chromatic Subtitles JSON config"
         );
 
-        return devConfig.map(config -> new MigrationCandidate(config, "development Chromatic Subtitles JSON config"));
+        return devConfig.map(config -> new MigrationCandidate(
+                config,
+                "development Chromatic Subtitles JSON config"
+        ));
     }
 
     private static boolean writeTomlOrWarn(Path configPath, ChromaticSubtitlesConfig config) {
@@ -85,12 +99,18 @@ public final class ConfigManager {
             ChromaticSubtitlesToml.write(configPath, config);
             return true;
         } catch (Exception exception) {
-            ChromaticSubtitles.LOGGER.warn("Failed to write Chromatic Subtitles TOML config", exception);
+            ChromaticSubtitles.LOGGER.warn(
+                    "Failed to write Chromatic Subtitles TOML config",
+                    exception
+            );
             return false;
         }
     }
 
-    private static Optional<ChromaticSubtitlesConfig> readLegacyJsonConfig(Path configPath, String sourceDescription) {
+    private static Optional<ChromaticSubtitlesConfig> readLegacyJsonConfig(
+            Path configPath,
+            String sourceDescription
+    ) {
         if (Files.notExists(configPath)) {
             return Optional.empty();
         }
@@ -103,7 +123,11 @@ public final class ConfigManager {
 
             return Optional.of(config);
         } catch (Exception exception) {
-            ChromaticSubtitles.LOGGER.warn("Failed to read {}; skipping legacy config migration", sourceDescription, exception);
+            ChromaticSubtitles.LOGGER.warn(
+                    "Failed to read {}; skipping legacy config migration",
+                    sourceDescription,
+                    exception
+            );
             return Optional.empty();
         }
     }

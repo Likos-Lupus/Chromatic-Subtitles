@@ -15,7 +15,6 @@ import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,6 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import top.likoslupus.chromaticsubtitles.extension.SubtitleColorAccess;
 
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 @Mixin(SubtitleOverlay.class)
 @Environment(EnvType.CLIENT)
@@ -116,7 +116,7 @@ public class SubtitleOverlayMixin {
             return vanillaColor;
         }
 
-        int backgroundColor = access.chromaticSubtitles$getBackgroundColor();
+        var backgroundColor = access.chromaticSubtitles$getBackgroundColor();
 
         if (backgroundColor < 0) {
             return vanillaColor;
@@ -152,13 +152,13 @@ public class SubtitleOverlayMixin {
             return vanillaColor;
         }
 
-        int textColor = access.chromaticSubtitles$getTextColor();
-        int brightness = vanillaColor & 0xFF;
-        int alpha = vanillaColor & 0xFF000000;
+        var textColor = access.chromaticSubtitles$getTextColor();
+        var brightness = vanillaColor & 0xFF;
+        var alpha = vanillaColor & 0xFF000000;
 
-        int red = ((textColor >> 16) & 0xFF) * brightness / 255;
-        int green = ((textColor >> 8) & 0xFF) * brightness / 255;
-        int blue = (textColor & 0xFF) * brightness / 255;
+        var red = ((textColor >> 16) & 0xFF) * brightness / 255;
+        var green = ((textColor >> 8) & 0xFF) * brightness / 255;
+        var blue = (textColor & 0xFF) * brightness / 255;
 
         return alpha | (red << 16) | (green << 8) | blue;
     }
