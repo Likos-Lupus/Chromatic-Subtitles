@@ -1,27 +1,30 @@
 plugins {
-    alias(libs.plugins.fabric.loom)
+    // Applies the correct Fabric Loom variant based on the Minecraft version.
+    // On 26.1+ (unobfuscated) this is `net.fabricmc.fabric-loom`, on older versions `fabric-loom-remap`.
+    id("dev.kikugie.loom-back-compat")
     `maven-publish`
 }
 
-val modVersion = libs.versions.modVersion.get()
-val targetJava = libs.versions.targetJava.get().toInt()
-val minecraftVersion = libs.versions.minecraft.get()
-val loaderVersion = libs.versions.fabric.loader.get()
+val modId = sc.properties["mod.id"] as String
+val modVersion = sc.properties["mod.version"] as String
+val fabricLoader = sc.properties.get<String>("deps.fabric_loader")
 
-group = "top.likoslupus"
-version = "$modVersion+$minecraftVersion"
+// Keep the published group stable for Maven coordinates across every node.
+group = sc.properties["mod.group"] as String
+version = "$modVersion+${sc.current.version}"
+base.archivesName.set(modId)
 
-base {
-    archivesName.set("chromaticsubtitles")
-}
+val requiredJava = JavaVersion.VERSION_25
 
-loom {
-    accessWidenerPath.set(file("src/main/resources/chromaticsubtitles.accesswidener"))
+repositories {
+    mavenCentral()
 }
 
 dependencies {
-    minecraft(libs.minecraft)
-    implementation(libs.fabric.loader)
+    minecraft("com.mojang:minecraft:${sc.current.version}")
+    loomx.applyMojangMappings()
+
+    modImplementation("net.fabricmc:fabric-loader:$fabricLoader")
 
     implementation(libs.night.config.core)
     implementation(libs.night.config.toml)
@@ -32,11 +35,40 @@ dependencies {
     api(libs.jspecify)
 }
 
+loom {
+    fabricModJsonPath = rootProject.file("src/main/resources/fabric.mod.json")
+    accessWidenerPath = rootProject.file("src/main/resources/chromaticsubtitles.accesswidener")
+
+    runConfigs.all {
+        preferGradleTask = true
+        generateRunConfig = true
+        runDirectory = rootProject.file("run")
+    }
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(requiredJava.majorVersion))
+    }
+
+    sourceCompatibility = requiredJava
+    targetCompatibility = requiredJava
+
+    withSourcesJar()
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(requiredJava.majorVersion.toInt())
+    options.encoding = "UTF-8"
+}
+
 tasks.processResources {
     val props = mapOf(
-        "version" to project.version,
-        "loaderVersion" to loaderVersion,
-        "minecraftVersion" to minecraftVersion
+        "id" to modId,
+        "name" to sc.properties["mod.name"] as String,
+        "version" to project.version.toString(),
+        "loader" to Regex("\\d+\\.\\d+").find(fabricLoader)!!.value,
+        "minecraft" to sc.properties["mod.mc_compat"] as String
     )
 
     inputs.properties(props)
@@ -45,27 +77,22 @@ tasks.processResources {
     filesMatching("fabric.mod.json") {
         expand(props)
     }
-}
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(targetJava))
+    filesMatching("chromaticsubtitles.mixin.json") {
+        expand("java" to "JAVA_${requiredJava.majorVersion}")
     }
-
-    val parsed = JavaVersion.toVersion(targetJava)
-    sourceCompatibility = parsed
-    targetCompatibility = parsed
-
-    withSourcesJar()
 }
 
-tasks.withType<JavaCompile>().configureEach {
-    options.release.set(targetJava)
-    options.encoding = "UTF-8"
-}
-
-tasks.jar {
-    from("LICENSE") {
-        rename { "${it}_${project.base.archivesName.get()}" }
+tasks.withType<Jar>().configureEach {
+    from(rootProject.file("LICENSE")) {
+        rename { "${it}_${base.archivesName.get()}" }
     }
+}
+
+tasks.register<Copy>("buildAndCollect") {
+    group = "build"
+    description = "Builds the mod jars and copies them into the root build/libs directory."
+    dependsOn(tasks.named("build"))
+    from(loomx.modJar.flatMap { it.archiveFile }, loomx.modSourcesJar.flatMap { it.archiveFile })
+    into(rootProject.layout.buildDirectory.dir("libs"))
 }

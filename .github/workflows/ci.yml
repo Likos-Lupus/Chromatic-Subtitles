@@ -42,7 +42,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build and check
-        run: ./gradlew clean build --no-daemon --stacktrace
+        run: ./gradlew chiseledClean chiseledBuildAndCollect --no-daemon --stacktrace
 
       - name: Upload build artifacts
         if: success()
@@ -50,5 +50,6 @@ jobs:
         with:
           name: chromatic-subtitles-build
           path: |
+            build/libs/**/*.jar
             build/libs/*.jar
           if-no-files-found: error

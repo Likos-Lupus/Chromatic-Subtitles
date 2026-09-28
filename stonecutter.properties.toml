@@ -1,0 +1,16 @@
+# Shared properties are applied to every registered Minecraft version.
+# Per-version sections override the shared values for that node.
+mod.id = "chromaticsubtitles"
+mod.name = "Chromatic Subtitles"
+mod.group = "top.likoslupus"
+mod.version = "2.1.0"
+
+deps.fabric_loader = "0.19.5"
+loomx.loom_version = "1.18-SNAPSHOT"
+
+["26.1.2"]
+# Mod compatibility range in fabric.mod.json
+mod.mc_compat = "~26.1.2"
+
+["26.3"]
+mod.mc_compat = "~26.3"
