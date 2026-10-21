@@ -5,7 +5,6 @@ package top.likoslupus.chromaticsubtitles.config;
 
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
-import net.fabricmc.loader.api.FabricLoader;
 import top.likoslupus.chromaticsubtitles.ChromaticSubtitles;
 
 import java.nio.charset.StandardCharsets;
@@ -53,8 +52,7 @@ public final class ConfigManager {
     }
 
     private static Path getConfigPath() {
-        return FabricLoader.getInstance()
-                .getConfigDir()
+        return ChromaticSubtitles.getConfigDirectory()
                 .resolve(ChromaticSubtitles.MOD_ID + CONFIG_EXTENSION);
     }
 
@@ -133,14 +131,12 @@ public final class ConfigManager {
     }
 
     private static Path getLegacyColorfulJsonPath() {
-        return FabricLoader.getInstance()
-                .getConfigDir()
+        return ChromaticSubtitles.getConfigDirectory()
                 .resolve(ChromaticSubtitles.LEGACY_MOD_ID + LEGACY_JSON_EXTENSION);
     }
 
     private static Path getDevJsonPath() {
-        return FabricLoader.getInstance()
-                .getConfigDir()
+        return ChromaticSubtitles.getConfigDirectory()
                 .resolve(ChromaticSubtitles.MOD_ID + LEGACY_JSON_EXTENSION);
     }
 

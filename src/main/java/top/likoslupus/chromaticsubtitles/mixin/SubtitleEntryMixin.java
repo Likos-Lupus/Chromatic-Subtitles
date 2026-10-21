@@ -3,15 +3,12 @@
 // Copyright (c) 2026 Likos-Lupus and Chromatic Subtitles contributors
 package top.likoslupus.chromaticsubtitles.mixin;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.components.SubtitleOverlay;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import top.likoslupus.chromaticsubtitles.extension.SubtitleColorAccess;
 
 @Mixin(SubtitleOverlay.Subtitle.class)
-@Environment(EnvType.CLIENT)
 public class SubtitleEntryMixin implements SubtitleColorAccess {
 
     @Unique

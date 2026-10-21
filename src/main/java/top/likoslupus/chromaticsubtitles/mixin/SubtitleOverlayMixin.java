@@ -5,8 +5,6 @@ package top.likoslupus.chromaticsubtitles.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.SubtitleOverlay;
@@ -26,12 +24,9 @@ import java.util.List;
 import org.jspecify.annotations.Nullable;
 
 @Mixin(SubtitleOverlay.class)
-@Environment(EnvType.CLIENT)
 public class SubtitleOverlayMixin {
 
-    @Unique
-    @Nullable
-    private Subtitle chromaticSubtitles$currentSubtitle;
+    @Unique private @Nullable Subtitle chromaticSubtitles$currentSubtitle;
 
     @WrapOperation(
             method = "onPlaySound",

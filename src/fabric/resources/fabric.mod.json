@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "${id}",
+  "id": "chromaticsubtitles",
   "version": "${version}",
-  "name": "${name}",
+  "name": "Chromatic Subtitles",
   "description": "Changes subtitle colors based on their sound source.",
   "authors": [
     "Likos-Lupus",
@@ -24,12 +24,13 @@
   "license": "MIT",
   "icon": "assets/chromaticsubtitles/icon.png",
   "depends": {
-    "fabricloader": ">=${loader}",
-    "minecraft": "${minecraft}"
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "~${minecraft_version}",
+    "java": ">=25"
   },
   "entrypoints": {
     "client": [
-      "top.likoslupus.chromaticsubtitles.ChromaticSubtitlesClient"
+      "top.likoslupus.chromaticsubtitles.fabric.ChromaticSubtitlesFabric"
     ]
   }
 }

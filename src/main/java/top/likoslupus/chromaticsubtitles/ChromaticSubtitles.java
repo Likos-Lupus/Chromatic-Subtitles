@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 import top.likoslupus.chromaticsubtitles.config.ChromaticSubtitlesConfig;
 import top.likoslupus.chromaticsubtitles.config.ConfigManager;
 
+import java.nio.file.Path;
+import org.jspecify.annotations.NonNull;
+
 public final class ChromaticSubtitles {
 
     public static final String MOD_ID = "chromaticsubtitles";
@@ -16,19 +19,36 @@ public final class ChromaticSubtitles {
     public static final Logger LOGGER = LoggerFactory.getLogger(NAME);
 
     private static ChromaticSubtitlesConfig config;
+    private static Path configDirectory;
 
     private ChromaticSubtitles() {
+    }
+
+    /**
+     * Loader-neutral client initialization. Called once by the Fabric or NeoForge entrypoint.
+     */
+    public static synchronized void initClient(@NonNull Path configDir) {
+        configDirectory = configDir;
+        loadConfig();
+    }
+
+    public static synchronized ChromaticSubtitlesConfig loadConfig() {
+        config = ConfigManager.load();
+        return config;
+    }
+
+    public static synchronized @NonNull Path getConfigDirectory() {
+        if (configDirectory == null) {
+            throw new IllegalStateException("Chromatic Subtitles has not been initialized");
+        }
+
+        return configDirectory;
     }
 
     public static synchronized ChromaticSubtitlesConfig getConfig() {
         return config == null
                 ? loadConfig()
                 : config;
-    }
-
-    public static synchronized ChromaticSubtitlesConfig loadConfig() {
-        config = ConfigManager.load();
-        return config;
     }
 
     public static synchronized ChromaticSubtitlesConfig reloadConfig() {
