@@ -30,7 +30,7 @@ plugins {
             providers.gradleProperty("architectury_loom_version").get() apply false
     id("dev.architectury.loom-remap") version
             providers.gradleProperty("architectury_loom_version").get() apply false
-    id("org.gradle.toolchains.foojay-resolv@Nullableer-convention") version "1.0.0"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
 stonecutter {
