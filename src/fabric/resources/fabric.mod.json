@@ -28,9 +28,16 @@
     "minecraft": "~${minecraft_version}",
     "java": ">=25"
   },
+  "suggests": {
+    "cloth-config": "*",
+    "modmenu": "*"
+  },
   "entrypoints": {
     "client": [
       "top.likoslupus.chromaticsubtitles.fabric.ChromaticSubtitlesFabric"
+    ],
+    "modmenu": [
+      "top.likoslupus.chromaticsubtitles.fabric.ChromaticSubtitlesModMenu"
     ]
   }
 }

@@ -9,9 +9,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.TextColor;
 
-import java.util.Objects;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
+
+import static java.util.Objects.requireNonNull;
 
 public record SubtitleColor(
         @NonNull TextColor text,
@@ -20,36 +21,39 @@ public record SubtitleColor(
 
     public static final SubtitleColor DEFAULT = ofText(TextColor.fromRgb(0xFFFFFF));
 
-    private static final Codec<SubtitleColor> RECORD_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            TextColor.CODEC.fieldOf("text")
-                    .forGetter(SubtitleColor::text),
-            TextColor.CODEC.optionalFieldOf("background")
-                    .forGetter(SubtitleColor::background)
-    ).apply(instance, SubtitleColor::new));
+    private static final Codec<SubtitleColor> RECORD_CODEC =
+            RecordCodecBuilder.create(instance -> instance.group(
+                    TextColor.CODEC.fieldOf("text")
+                            .forGetter(SubtitleColor::text),
+                    TextColor.CODEC.optionalFieldOf("background")
+                            .forGetter(SubtitleColor::background)
+            ).apply(instance, SubtitleColor::new));
 
-    private static final Codec<SubtitleColor> SIMPLE_CODEC = TextColor.CODEC.xmap(
-            SubtitleColor::ofText,
-            SubtitleColor::text
-    );
+    private static final Codec<SubtitleColor> SIMPLE_CODEC =
+            TextColor.CODEC.xmap(
+                    SubtitleColor::ofText,
+                    SubtitleColor::text
+            );
 
-    public static final Codec<SubtitleColor> CODEC = Codec.either(RECORD_CODEC, SIMPLE_CODEC).xmap(
-            either -> either.map(
-                    left -> left,
-                    right -> right
-            ),
-            color -> color.background().isEmpty()
-                    ? Either.right(color)
-                    : Either.left(color)
-    );
+    public static final Codec<SubtitleColor> CODEC =
+            Codec.either(RECORD_CODEC, SIMPLE_CODEC).xmap(
+                    either -> either.map(
+                            left -> left,
+                            right -> right
+                    ),
+                    color -> color.background().isEmpty()
+                            ? Either.right(color)
+                            : Either.left(color)
+            );
 
     public SubtitleColor {
-        Objects.requireNonNull(text, "text");
-        Objects.requireNonNull(background, "background");
+        requireNonNull(text, "text");
+        requireNonNull(background, "background");
     }
 
     public static @NonNull SubtitleColor ofText(ChatFormatting formatting) {
         return ofText(
-                Objects.requireNonNull(
+                requireNonNull(
                         TextColor.fromLegacyFormat(formatting),
                         "formatting must be a color"
                 )
@@ -58,6 +62,14 @@ public record SubtitleColor(
 
     public static @NonNull SubtitleColor ofText(TextColor text) {
         return new SubtitleColor(text, Optional.empty());
+    }
+
+    public @NonNull SubtitleColor withText(TextColor text) {
+        return new SubtitleColor(text, this.background);
+    }
+
+    public @NonNull SubtitleColor withBackground(Optional<TextColor> background) {
+        return new SubtitleColor(this.text, background);
     }
 
 }

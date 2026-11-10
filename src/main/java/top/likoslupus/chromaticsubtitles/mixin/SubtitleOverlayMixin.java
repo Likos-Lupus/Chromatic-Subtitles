@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import top.likoslupus.chromaticsubtitles.ChromaticSubtitles;
 import top.likoslupus.chromaticsubtitles.extension.SubtitleColorAccess;
 
 import java.util.List;
@@ -69,6 +70,24 @@ public class SubtitleOverlayMixin {
         return original.call(subtitles, subtitle);
     }
 
+    @Inject(
+            method = "onPlaySound",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    private void chromaticSubtitles$hideSources(
+            SoundInstance sound,
+            WeighedSoundEvents soundEvent,
+            float range,
+            CallbackInfo ci
+    ) {
+        var config = ChromaticSubtitles.getConfig();
+
+        if (config.enabled() && config.hiddenSources().contains(sound.getSource())) {
+            ci.cancel();
+        }
+    }
+
     @WrapOperation(
             method = "extractRenderState",
             at = @At(
@@ -100,7 +119,25 @@ public class SubtitleOverlayMixin {
             int col,
             Operation<Void> original
     ) {
-        original.call(graphics, x0, y0, x1, y1, this.chromaticSubtitles$modifyBackgroundColor(col));
+        var config = ChromaticSubtitles.getConfig();
+
+        if (!config.enabled()) {
+            original.call(graphics, x0, y0, x1, y1, col);
+            return;
+        }
+
+        if (config.hideBackground()) {
+            return;
+        }
+
+        var color = this.chromaticSubtitles$modifyBackgroundColor(col);
+
+        if (config.backgroundOpacity() >= 0) {
+            var alpha = Math.round(255 * config.backgroundOpacity() / 100.0f);
+            color = (alpha << 24) | (color & 0x00FFFFFF);
+        }
+
+        original.call(graphics, x0, y0, x1, y1, color);
     }
 
     @Unique
@@ -136,7 +173,16 @@ public class SubtitleOverlayMixin {
             int color,
             Operation<Void> original
     ) {
-        original.call(graphics, font, str, x, y, this.chromaticSubtitles$modifyTextColor(color));
+        var config = ChromaticSubtitles.getConfig();
+        var modifiedColor = config.enabled()
+                ? this.chromaticSubtitles$modifyTextColor(color)
+                : color;
+
+        if (config.enabled() && !config.textShadow()) {
+            graphics.text(font, str, x, y, modifiedColor, false);
+        } else {
+            original.call(graphics, font, str, x, y, modifiedColor);
+        }
     }
 
     @Unique
@@ -156,6 +202,31 @@ public class SubtitleOverlayMixin {
         var blue = (textColor & 0xFF) * brightness / 255;
 
         return alpha | (red << 16) | (green << 8) | blue;
+    }
+
+    @WrapOperation(
+            method = "extractRenderState",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;text(Lnet/minecraft/client/gui/Font;Ljava/lang/String;III)V"
+            )
+    )
+    private void chromaticSubtitles$applyIndicatorTextShadow(
+            GuiGraphicsExtractor graphics,
+            Font font,
+            String str,
+            int x,
+            int y,
+            int color,
+            Operation<Void> original
+    ) {
+        var config = ChromaticSubtitles.getConfig();
+
+        if (config.enabled() && !config.textShadow()) {
+            graphics.text(font, str, x, y, color, false);
+        } else {
+            original.call(graphics, font, str, x, y, color);
+        }
     }
 
     @Inject(

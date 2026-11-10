@@ -140,6 +140,23 @@ public final class ConfigManager {
                 .resolve(ChromaticSubtitles.MOD_ID + LEGACY_JSON_EXTENSION);
     }
 
+    public static boolean save(ChromaticSubtitlesConfig config) {
+        try {
+            ChromaticSubtitlesToml.write(getConfigPath(), config);
+            return true;
+        } catch (Exception exception) {
+            ChromaticSubtitles.LOGGER.warn(
+                    "Failed to save Chromatic Subtitles TOML config",
+                    exception
+            );
+            return false;
+        }
+    }
+
+    public static Path getPath() {
+        return getConfigPath();
+    }
+
     private record MigrationCandidate(
             ChromaticSubtitlesConfig config,
             String sourceDescription

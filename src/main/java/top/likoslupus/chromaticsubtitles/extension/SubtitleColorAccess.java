@@ -18,7 +18,14 @@ public interface SubtitleColorAccess {
 
     default void chromaticSubtitles$setColor(@NonNull SoundInstance sound) {
         var config = ChromaticSubtitles.getConfig();
-        var color = config.getColorForSource(sound.getSource());
+
+        if (!config.enabled()) {
+            this.chromaticSubtitles$setTextColor(-1);
+            this.chromaticSubtitles$setBackgroundColor(-1);
+            return;
+        }
+
+        var color = config.resolveColor(sound);
         var fallbackColor = config.getDefaultColor();
 
         this.chromaticSubtitles$setTextColor(ARGB.opaque(color.text().getValue()));

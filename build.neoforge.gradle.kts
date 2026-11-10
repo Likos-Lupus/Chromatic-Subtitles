@@ -1,3 +1,9 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2021 haykam821
+ * Copyright (c) 2026 Likos-Lupus and Chromatic Subtitles contributors
+ */
+
 plugins {
     id("dev.kikugie.loom-back-compat")
 }
@@ -8,9 +14,14 @@ val mcVersion = sc.current.version
 val javaVersion = libs.versions.java.get()
 
 val neoForgeVersion = when (mcVersion) {
-    "26.1.2" -> "26.1.2.114"
-    "26.3" -> "26.3.0.46-beta"
+    "26.1.2" -> libs.versions.neoforge.v2612.get()
+    "26.3" -> libs.versions.neoforge.v263.get()
     else -> error("No NeoForge version configured for Minecraft $mcVersion")
+}
+val clothConfigVersion = when (mcVersion) {
+    "26.1.2" -> libs.versions.cloth.config.v2612.get()
+    "26.3" -> libs.versions.cloth.config.v263.get()
+    else -> error("No Cloth Config version configured for Minecraft $mcVersion")
 }
 
 group = providers.gradleProperty("maven_group").get()
@@ -21,6 +32,9 @@ repositories {
     mavenCentral()
     maven("https://maven.neoforged.net/releases/") {
         name = "NeoForged"
+    }
+    maven("https://maven.shedaniel.me/") {
+        name = "Shedaniel"
     }
 }
 
@@ -43,6 +57,12 @@ dependencies {
 
     include(libs.night.config.core)
     include(libs.night.config.toml)
+
+    // Optional config GUI; soft dependency declared in neoforge.mods.toml.
+    modCompileOnly("me.shedaniel.cloth:cloth-config-neoforge:$clothConfigVersion")
+    if (providers.gradleProperty("with_cloth").orNull != "false") {
+        modLocalRuntime("me.shedaniel.cloth:cloth-config-neoforge:$clothConfigVersion")
+    }
 
     compileOnly(libs.jspecify)
 }

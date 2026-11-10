@@ -28,3 +28,10 @@ type = "required"
 versionRange = "[${minecraft_version}]"
 ordering = "NONE"
 side = "CLIENT"
+
+[[dependencies.chromaticsubtitles]]
+modId = "cloth_config"
+type = "optional"
+versionRange = "*"
+ordering = "NONE"
+side = "CLIENT"

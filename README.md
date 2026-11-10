@@ -44,10 +44,38 @@ Subtitles JSON config exists at: `config/colorfulsubtitles.json`, it will be con
 During development, an existing `config/chromaticsubtitles.json` file can also be converted to the
 new TOML format if no TOML config exists.
 
-Colors can be configured with the simple color form:
+### In-game configuration
+
+The config screen is optional. It
+requires [Cloth Config API](https://modrinth.com/mod/cloth-config):
+
+* **Fabric:** install Cloth Config and [Mod Menu](https://modrinth.com/mod/modmenu). The config
+  button is available from Mod Menu. Without Mod Menu there is no in-game entry point.
+* **NeoForge:** install Cloth Config. The config button is available from the mod list.
+
+If Cloth Config is not installed, the mod still works normally and the TOML file can be edited by
+hand.
+
+### Config format
 
 ```toml
+# Set to false to restore vanilla subtitle rendering.
+enabled = true
+
+# Used when a sound source has no explicit color.
 default_color = "white"
+
+# Whether subtitle text is rendered with a drop shadow. Vanilla uses true.
+text_shadow = true
+
+# Background opacity from 0 to 100. -1 keeps the vanilla opacity.
+background_opacity = -1
+
+# Set to true to hide the subtitle background entirely.
+hide_background = false
+
+# Sound sources that should not produce subtitles.
+hidden_sources = ["music", "weather"]
 
 [colors]
 music = "dark_purple"
@@ -60,16 +88,6 @@ player = "gold"
 ambient = "gray"
 voice = "light_purple"
 ui = "blue"
-```
-
-or with the table form when a custom background color is needed:
-
-```toml
-default_color = "white"
-
-[colors]
-music = "dark_purple"
-record = "dark_red"
 
 [colors.weather]
 text = "aqua"
@@ -78,6 +96,16 @@ background = "#002233"
 [colors.hostile]
 text = "red"
 background = "#330000"
+
+# Per-sound overrides. These take priority over the colors table.
+[[sound_overrides]]
+sound = "minecraft:block.note_block.harp"
+text = "#FFAA00"
+
+[[sound_overrides]]
+sound = "minecraft:entity.creeper.primed"
+text = "#FF5555"
+background = "#440000"
 ```
 
 `default_color` also supports the table form:
@@ -89,7 +117,12 @@ background = "#000000"
 ```
 
 Colors can be Minecraft formatting color names, such as `dark_purple`, or hex colors, such as
-`#AA00AA`.
+`#AA00AA`. Background colors are RGB only; use `background_opacity` for transparency.
+
+The `MASTER` sound source is not listed in the config screen. It continues to use `default_color`.
+
+Changes made through the config screen apply to newly created subtitles after saving. Subtitles that
+are already visible keep their old colors until they disappear.
 
 ## License
 
