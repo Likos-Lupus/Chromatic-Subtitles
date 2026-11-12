@@ -24,7 +24,7 @@
   "license": "MIT",
   "icon": "assets/chromaticsubtitles/icon.png",
   "depends": {
-    "fabricloader": ">=${loader_version}",
+    "fabricloader": "*",
     "minecraft": "~${minecraft_version}",
     "java": ">=25"
   },
